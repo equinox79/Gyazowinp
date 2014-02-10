@@ -834,8 +834,9 @@ BOOL uploadFile(HWND hwnd, LPCTSTR fileName)
 	std::ostringstream	buf;	// 送信メッセージ
 	std::string			idStr;	// ID
 
-	LPCWSTR lpwcUploadServer;	// アップロード先サーバ
-	LPCWSTR lpwcUploadPath;		// アップロード先パス
+	LPCWSTR lpwcUploadServer;		// アップロード先サーバ
+	INTERNET_PORT lipUploadPort;	// アップロード先Port
+	LPCWSTR lpwcUploadPath;			// アップロード先パス
 
 	LPCWSTR lpwcId;			// 認証用ID
 	LPCWSTR lpwcPassword;	// 認証用パスワード
@@ -900,6 +901,11 @@ BOOL uploadFile(HWND hwnd, LPCTSTR fileName)
 	}else{
 		lpwcUploadServer = L"gyazo.com";
 	}
+	if (g_Settings.count(L"upload_port")) {
+		lipUploadPort = _wtoi( g_Settings[L"upload_port"].c_str() );		
+	}else{
+		lipUploadPort = 80;
+	}
 	if (g_Settings.count(L"upload_path")) {
 		lpwcUploadPath = g_Settings[L"upload_path"].c_str();
 	}else{
@@ -943,7 +949,7 @@ BOOL uploadFile(HWND hwnd, LPCTSTR fileName)
 
 	// 接続先
 	HINTERNET hConnection = InternetConnect(hSession, 
-		lpwcUploadServer, INTERNET_DEFAULT_HTTP_PORT,
+		lpwcUploadServer, lipUploadPort,
 		lpwcId, lpwcPassword, INTERNET_SERVICE_HTTP, 0, NULL);
 	if(NULL == hSession) {
 		MessageBox(hwnd, _T("Cannot initiate connection"),
